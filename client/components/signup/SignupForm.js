@@ -1,5 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
+import validateInput from '../../../server/validations/signup';
 
 class SignupForm extends React.Component {
 	constructor(props) {
@@ -21,13 +22,25 @@ class SignupForm extends React.Component {
 		this.setState({ [e.target.name]: e.target.value});
 	}
 
-	onSubmit(e) {
+	isValid() {
+		const {errors, isValid } = validateInput(this.state);
+		
+		if (!isValid) {
+			this.setState({errors});
+		}
+
+		return isValid;
+	}
+
+ 	onSubmit(e) {
 		this.setState({ errors: {}, isLoading: true });
 		e.preventDefault();
-		this.props.userSignupRequest(this.state).then(
-			(resolve) => {console.log(resolve)},
-			(reject) => this.setState({errors: reject.response.data, isLoading: false})
-		);
+		if (this.isValid()) {
+			this.props.userSignupRequest(this.state).then(
+				(resolve) => {console.log(resolve)},
+				(reject) => this.setState({errors: reject.response.data, isLoading: false})
+			);
+		}
 	}
 
 	render() {
